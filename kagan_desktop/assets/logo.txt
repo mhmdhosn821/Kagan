@@ -1,0 +1,3 @@
+This is a placeholder for the Kagan logo.
+In a production environment, you would place a logo.png file here.
+For now, the application will work without the logo image.
