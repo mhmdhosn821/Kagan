@@ -1,0 +1,246 @@
+#!/usr/bin/env python
+"""
+Initialize the Kagan ERP database with sample data
+"""
+from app.database import SessionLocal, engine, Base
+from app.models import User, UserRole, Customer, InventoryItem, InventoryType, InventoryItemType, UnitType
+from app.models import Service, ServiceCategory, Product, BOMItem, RecipeItem
+from app.services.auth import get_password_hash
+
+def init_db():
+    """Initialize database with tables and sample data"""
+    print("Creating database tables...")
+    Base.metadata.create_all(bind=engine)
+    
+    db = SessionLocal()
+    
+    try:
+        # Check if admin already exists
+        existing_admin = db.query(User).filter(User.username == "admin").first()
+        if existing_admin:
+            print("Database already initialized. Skipping...")
+            return
+        
+        print("Adding sample users...")
+        # Create admin user
+        admin = User(
+            username="admin",
+            email="admin@kagan.local",
+            full_name="مدیر سیستم",
+            hashed_password=get_password_hash("admin123"),
+            role=UserRole.ADMIN
+        )
+        db.add(admin)
+        
+        # Create barber
+        barber = User(
+            username="barber1",
+            email="barber@kagan.local",
+            full_name="علی رضایی",
+            hashed_password=get_password_hash("barber123"),
+            role=UserRole.BARBER,
+            commission_percentage=30
+        )
+        db.add(barber)
+        
+        # Create barista
+        barista = User(
+            username="barista1",
+            email="barista@kagan.local",
+            full_name="سارا محمدی",
+            hashed_password=get_password_hash("barista123"),
+            role=UserRole.BARISTA
+        )
+        db.add(barista)
+        
+        print("Adding sample customers...")
+        # Sample customers
+        customers = [
+            Customer(full_name="محمد احمدی", phone="09123456789", loyalty_points=100),
+            Customer(full_name="زهرا کریمی", phone="09124567890", loyalty_points=50),
+        ]
+        for customer in customers:
+            db.add(customer)
+        
+        print("Adding inventory items...")
+        # Cafe inventory
+        cafe_items = [
+            InventoryItem(
+                name="شیر",
+                code="CAF-001",
+                inventory_type=InventoryType.CAFE,
+                item_type=InventoryItemType.RAW_MATERIAL,
+                unit=UnitType.LITER,
+                current_stock=10.0,
+                min_stock_alert=2.0,
+                unit_price=50000
+            ),
+            InventoryItem(
+                name="قهوه اسپرسو",
+                code="CAF-002",
+                inventory_type=InventoryType.CAFE,
+                item_type=InventoryItemType.RAW_MATERIAL,
+                unit=UnitType.KG,
+                current_stock=5.0,
+                min_stock_alert=1.0,
+                unit_price=800000
+            ),
+            InventoryItem(
+                name="شکلات",
+                code="CAF-003",
+                inventory_type=InventoryType.CAFE,
+                item_type=InventoryItemType.RAW_MATERIAL,
+                unit=UnitType.KG,
+                current_stock=3.0,
+                min_stock_alert=0.5,
+                unit_price=300000
+            ),
+        ]
+        
+        # Barbershop inventory
+        barbershop_items = [
+            InventoryItem(
+                name="رنگ مو",
+                code="BAR-001",
+                inventory_type=InventoryType.BARBERSHOP,
+                item_type=InventoryItemType.RAW_MATERIAL,
+                unit=UnitType.ML,
+                current_stock=1000.0,
+                min_stock_alert=200.0,
+                unit_price=500
+            ),
+            InventoryItem(
+                name="اکسیدان",
+                code="BAR-002",
+                inventory_type=InventoryType.BARBERSHOP,
+                item_type=InventoryItemType.RAW_MATERIAL,
+                unit=UnitType.ML,
+                current_stock=1500.0,
+                min_stock_alert=300.0,
+                unit_price=300
+            ),
+            InventoryItem(
+                name="شامپو",
+                code="BAR-003",
+                inventory_type=InventoryType.BARBERSHOP,
+                item_type=InventoryItemType.RAW_MATERIAL,
+                unit=UnitType.ML,
+                current_stock=2000.0,
+                min_stock_alert=500.0,
+                unit_price=200
+            ),
+            InventoryItem(
+                name="واکس مو",
+                code="BAR-004",
+                inventory_type=InventoryType.BARBERSHOP,
+                item_type=InventoryItemType.RETAIL_PRODUCT,
+                unit=UnitType.PIECE,
+                current_stock=20.0,
+                min_stock_alert=5.0,
+                unit_price=150000,
+                retail_price=250000
+            ),
+        ]
+        
+        for item in cafe_items + barbershop_items:
+            db.add(item)
+        
+        db.flush()  # Flush to get IDs
+        
+        print("Adding services...")
+        # Barbershop services
+        services = [
+            Service(
+                name="اصلاح صورت",
+                category=ServiceCategory.HAIRCUT,
+                price=100000,
+                duration_minutes=30
+            ),
+            Service(
+                name="کوتاهی مو",
+                category=ServiceCategory.HAIRCUT,
+                price=150000,
+                duration_minutes=45
+            ),
+            Service(
+                name="رنگ مو",
+                category=ServiceCategory.COLORING,
+                price=300000,
+                duration_minutes=90
+            ),
+            Service(
+                name="ماساژ صورت",
+                category=ServiceCategory.MASSAGE,
+                price=80000,
+                duration_minutes=20
+            ),
+        ]
+        
+        for service in services:
+            db.add(service)
+        
+        db.flush()  # Flush to get service IDs
+        
+        # Add BOM for coloring service (رنگ مو)
+        coloring_service = db.query(Service).filter(Service.name == "رنگ مو").first()
+        color_item = db.query(InventoryItem).filter(InventoryItem.code == "BAR-001").first()
+        oxidant_item = db.query(InventoryItem).filter(InventoryItem.code == "BAR-002").first()
+        
+        if coloring_service and color_item and oxidant_item:
+            db.add(BOMItem(service_id=coloring_service.id, inventory_item_id=color_item.id, quantity=50))
+            db.add(BOMItem(service_id=coloring_service.id, inventory_item_id=oxidant_item.id, quantity=50))
+        
+        print("Adding cafe products...")
+        # Cafe products
+        products = [
+            Product(
+                name="اسپرسو",
+                code="PROD-001",
+                price=30000,
+                category="coffee"
+            ),
+            Product(
+                name="کاپوچینو",
+                code="PROD-002",
+                price=50000,
+                category="coffee"
+            ),
+            Product(
+                name="هات چاکلت",
+                code="PROD-003",
+                price=60000,
+                category="dessert"
+            ),
+        ]
+        
+        for product in products:
+            db.add(product)
+        
+        db.flush()  # Flush to get product IDs
+        
+        # Add recipes
+        cappuccino = db.query(Product).filter(Product.code == "PROD-002").first()
+        milk_item = db.query(InventoryItem).filter(InventoryItem.code == "CAF-001").first()
+        coffee_item = db.query(InventoryItem).filter(InventoryItem.code == "CAF-002").first()
+        
+        if cappuccino and milk_item and coffee_item:
+            db.add(RecipeItem(product_id=cappuccino.id, inventory_item_id=milk_item.id, quantity=0.15))  # 150ml milk
+            db.add(RecipeItem(product_id=cappuccino.id, inventory_item_id=coffee_item.id, quantity=0.02))  # 20g coffee
+        
+        db.commit()
+        print("✅ Database initialized successfully!")
+        print("\nDefault users created:")
+        print("  Admin: username='admin', password='admin123'")
+        print("  Barber: username='barber1', password='barber123'")
+        print("  Barista: username='barista1', password='barista123'")
+        
+    except Exception as e:
+        print(f"❌ Error initializing database: {e}")
+        db.rollback()
+        raise
+    finally:
+        db.close()
+
+
+if __name__ == "__main__":
+    init_db()
