@@ -41,6 +41,7 @@ ENV/
 *.sqlite
 *.sqlite3
 kagan.db
+kagan_desktop.db
 
 # Logs
 *.log
