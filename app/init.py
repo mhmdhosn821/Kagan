@@ -33,8 +33,8 @@ def create_database_tables():
     print("✅ دیتابیس آماده است")
 
 
-def is_database_empty():
-    """Check if database is empty (no admin user exists)"""
+def needs_initial_data():
+    """Check if database needs initial data seeding (checks if admin user exists)"""
     db = SessionLocal()
     try:
         admin = db.query(User).filter(User.username == "admin").first()
@@ -45,11 +45,13 @@ def is_database_empty():
 
 def seed_initial_data():
     """Seed database with initial users and sample data"""
+    from sqlalchemy.exc import SQLAlchemyError
+    
     db = SessionLocal()
     
     try:
         # Check if already initialized
-        if not is_database_empty():
+        if not needs_initial_data():
             return
         
         # Create users
@@ -171,7 +173,8 @@ def seed_initial_data():
         for item in cafe_items + barbershop_items:
             db.add(item)
         
-        db.flush()  # Flush to get IDs
+        # Flush to get IDs for foreign key relationships (needed for BOM and Recipe items)
+        db.flush()
         
         # Barbershop services
         services = [
@@ -204,7 +207,8 @@ def seed_initial_data():
         for service in services:
             db.add(service)
         
-        db.flush()  # Flush to get service IDs
+        # Flush to get service IDs for foreign key relationships (needed for BOM items)
+        db.flush()
         
         # Add BOM for coloring service
         coloring_service = db.query(Service).filter(Service.name == "رنگ مو").first()
@@ -240,7 +244,8 @@ def seed_initial_data():
         for product in products:
             db.add(product)
         
-        db.flush()  # Flush to get product IDs
+        # Flush to get product IDs for foreign key relationships (needed for Recipe items)
+        db.flush()
         
         # Add recipes
         cappuccino = db.query(Product).filter(Product.code == "PROD-002").first()
@@ -254,7 +259,7 @@ def seed_initial_data():
         db.commit()
         print("✅ دادههای اولیه اضافه شد")
         
-    except Exception as e:
+    except SQLAlchemyError as e:
         print(f"❌ خطا در مقداردهی اولیه: {e}")
         db.rollback()
         raise
@@ -276,5 +281,5 @@ def auto_setup():
     create_database_tables()
     
     # Seed initial data if database is empty
-    if is_database_empty():
+    if needs_initial_data():
         seed_initial_data()
