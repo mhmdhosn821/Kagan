@@ -1,0 +1,55 @@
+/* Kagan ERP Custom Styles */
+
+/* RTL Support */
+body {
+    direction: rtl;
+    text-align: right;
+    font-family: 'Vazir', sans-serif;
+}
+
+/* Utility classes */
+.text-left {
+    text-align: left !important;
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+/* Persian number styles */
+.persian-number {
+    font-family: 'Vazir', sans-serif;
+}
+
+/* Card styles */
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Button styles */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+/* Table styles for RTL */
+table {
+    direction: rtl;
+}
+
+/* Alert styles */
+.alert {
+    border-radius: 8px;
+}
+
+/* Form styles */
+.form-control, .form-select {
+    border-radius: 8px;
+    text-align: right;
+}
+
+/* Badge styles */
+.badge {
+    font-weight: 500;
+}
