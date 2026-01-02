@@ -1,3 +1,10 @@
+import sys
+from pathlib import Path
+# Add parent directory to path when running as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -6,15 +13,32 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import engine, Base
 from app.routers import auth, customers, inventory, barbershop, cafe, invoices, reports
+from app.init import auto_setup
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup and shutdown events"""
+    # Startup: Auto-initialize the application
+    print("\n" + "=" * 60)
+    print("🚀 در حال راه‌اندازی Kagan ERP...")
+    print("=" * 60)
+    auto_setup()
+    print("=" * 60)
+    print(f"🚀 سرور در حال اجرا در http://localhost:8000")
+    print(f"📚 مستندات API: http://localhost:8000/docs")
+    print("=" * 60 + "\n")
+    yield
+    # Shutdown: cleanup if needed
+    pass
+
 
 # Create FastAPI app
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
     description="سیستم ERP جامع برای مدیریت آرایشگاه و کافه",
+    lifespan=lifespan,
 )
 
 # CORS middleware
