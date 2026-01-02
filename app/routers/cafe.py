@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 from app.database import get_db
 from app.models.product import Product, RecipeItem
@@ -15,8 +15,8 @@ class ProductCreate(BaseModel):
     code: str
     price: float
     category: str
-    description: str = None
-    image_url: str = None
+    description: Optional[str] = None
+    image_url: Optional[str] = None
 
 
 class ProductResponse(BaseModel):
@@ -25,8 +25,8 @@ class ProductResponse(BaseModel):
     code: str
     price: float
     category: str
-    description: str = None
-    image_url: str = None
+    description: Optional[str] = None
+    image_url: Optional[str] = None
     is_active: bool
     
     class Config:

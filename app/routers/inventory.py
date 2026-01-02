@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 from app.database import get_db
 from app.models.inventory import InventoryItem, InventoryTransaction, InventoryType, InventoryItemType, UnitType
@@ -19,15 +19,15 @@ class InventoryItemCreate(BaseModel):
     unit: UnitType
     min_stock_alert: float
     unit_price: float
-    retail_price: float = None
+    retail_price: Optional[float] = None
 
 
 class InventoryItemUpdate(BaseModel):
-    name: str = None
-    min_stock_alert: float = None
-    unit_price: float = None
-    retail_price: float = None
-    is_active: bool = None
+    name: Optional[str] = None
+    min_stock_alert: Optional[float] = None
+    unit_price: Optional[float] = None
+    retail_price: Optional[float] = None
+    is_active: Optional[bool] = None
 
 
 class InventoryItemResponse(BaseModel):
@@ -40,7 +40,7 @@ class InventoryItemResponse(BaseModel):
     current_stock: float
     min_stock_alert: float
     unit_price: float
-    retail_price: float = None
+    retail_price: Optional[float] = None
     is_active: bool
     
     class Config:
@@ -49,8 +49,8 @@ class InventoryItemResponse(BaseModel):
 
 class StockAdjustment(BaseModel):
     quantity: float
-    unit_price: float = None
-    notes: str = None
+    unit_price: Optional[float] = None
+    notes: Optional[str] = None
 
 
 @router.post("/", response_model=InventoryItemResponse)

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime
 from app.database import get_db
@@ -18,7 +18,7 @@ class ServiceCreate(BaseModel):
     category: ServiceCategory
     price: float
     duration_minutes: int = 30
-    description: str = None
+    description: Optional[str] = None
 
 
 class ServiceResponse(BaseModel):
@@ -27,7 +27,7 @@ class ServiceResponse(BaseModel):
     category: ServiceCategory
     price: float
     duration_minutes: int
-    description: str = None
+    description: Optional[str] = None
     is_active: bool
     
     class Config:
@@ -44,7 +44,7 @@ class BookingCreate(BaseModel):
     barber_id: int
     service_id: int
     booking_datetime: datetime
-    notes: str = None
+    notes: Optional[str] = None
 
 
 class BookingResponse(BaseModel):
@@ -54,7 +54,7 @@ class BookingResponse(BaseModel):
     service_id: int
     booking_datetime: datetime
     status: BookingStatus
-    notes: str = None
+    notes: Optional[str] = None
     
     class Config:
         from_attributes = True

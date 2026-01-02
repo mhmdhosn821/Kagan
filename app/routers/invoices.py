@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime
 from app.database import get_db
@@ -15,21 +15,21 @@ router = APIRouter(prefix="/invoices", tags=["Invoices"])
 
 class InvoiceItemCreate(BaseModel):
     item_type: str  # service, product, retail
-    service_id: int = None
-    product_id: int = None
-    inventory_item_id: int = None
+    service_id: Optional[int] = None
+    product_id: Optional[int] = None
+    inventory_item_id: Optional[int] = None
     quantity: int = 1
     unit_price: float
-    barber_id: int = None
+    barber_id: Optional[int] = None
 
 
 class InvoiceCreate(BaseModel):
-    customer_id: int = None
+    customer_id: Optional[int] = None
     invoice_type: InvoiceType
     items: List[InvoiceItemCreate]
     discount_amount: float = 0
     payment_method: PaymentMethod = PaymentMethod.CASH
-    notes: str = None
+    notes: Optional[str] = None
 
 
 class InvoiceResponse(BaseModel):

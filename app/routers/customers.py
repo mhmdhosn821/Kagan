@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 from app.database import get_db
 from app.models.customer import Customer
@@ -13,26 +13,26 @@ router = APIRouter(prefix="/customers", tags=["Customers"])
 class CustomerCreate(BaseModel):
     full_name: str
     phone: str
-    email: str = None
-    address: str = None
-    notes: str = None
+    email: Optional[str] = None
+    address: Optional[str] = None
+    notes: Optional[str] = None
 
 
 class CustomerUpdate(BaseModel):
-    full_name: str = None
-    phone: str = None
-    email: str = None
-    address: str = None
-    notes: str = None
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    address: Optional[str] = None
+    notes: Optional[str] = None
 
 
 class CustomerResponse(BaseModel):
     id: int
     full_name: str
     phone: str
-    email: str = None
-    address: str = None
-    notes: str = None
+    email: Optional[str] = None
+    address: Optional[str] = None
+    notes: Optional[str] = None
     loyalty_points: int
     
     class Config:
