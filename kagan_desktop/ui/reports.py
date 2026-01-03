@@ -41,7 +41,7 @@ class ReportsPage(QWidget):
         # نوع گزارش
         filter_layout.addWidget(QLabel("نوع گزارش:"))
         self.report_type_combo = QComboBox()
-        self.report_type_combo.addItems(["فروش", "موجودی انبار", "کمیسیون آرایشگران"])
+        self.report_type_combo.addItems(["فروش", "موجودی انبار", "کمیسیون آرایشگران", "سود خالص واقعی"])
         filter_layout.addWidget(self.report_type_combo)
         
         refresh_btn = QPushButton("🔄 نمایش گزارش")
@@ -127,6 +127,8 @@ class ReportsPage(QWidget):
             self.load_inventory_report()
         elif report_type == "کمیسیون آرایشگران":
             self.load_commission_report(from_date, to_date)
+        elif report_type == "سود خالص واقعی":
+            self.load_net_profit_report(from_date, to_date)
     
     def load_sales_report(self, from_date: str, to_date: str):
         """گزارش فروش"""
@@ -284,3 +286,94 @@ class ReportsPage(QWidget):
             self.report_table.setItem(i, 2, QTableWidgetItem(str(row['service_count'])))
             self.report_table.setItem(i, 3, QTableWidgetItem(f"{row['total_sales']:,.0f} ریال"))
             self.report_table.setItem(i, 4, QTableWidgetItem(f"{row['commission']:,.0f} ریال"))
+    
+    def load_net_profit_report(self, from_date: str, to_date: str):
+        """گزارش سود خالص واقعی"""
+        # محاسبه فروش کل
+        total_sales_query = """
+            SELECT COALESCE(SUM(total_amount), 0) as total
+            FROM invoices
+            WHERE DATE(created_at) BETWEEN ? AND ?
+        """
+        sales_result = self.db.execute_query(total_sales_query, (from_date, to_date))
+        total_sales = sales_result[0]['total'] if sales_result else 0
+        
+        # محاسبه هزینه مواد مصرفی (تخمینی بر اساس کسر موجودی)
+        # این مقدار می‌تواند بر اساس سیستم BOM دقیق‌تر محاسبه شود
+        material_cost_query = """
+            SELECT COALESCE(SUM(quantity * unit_price), 0) as cost
+            FROM inventory
+            WHERE inventory_type IN ('cafe', 'barbershop')
+            AND item_type IN ('raw_material', 'consumable')
+        """
+        material_result = self.db.execute_query(material_cost_query, ())
+        # فرض: 30% از ارزش انبار در این بازه مصرف شده
+        material_cost = (material_result[0]['cost'] * 0.3) if material_result else 0
+        
+        # محاسبه کمیسیون آرایشگران
+        commission_query = """
+            SELECT COALESCE(SUM(ii.total_price * u.commission_percentage / 100), 0) as total
+            FROM invoice_items ii
+            JOIN invoices i ON ii.invoice_id = i.id
+            JOIN users u ON ii.barber_id = u.id
+            WHERE ii.barber_id IS NOT NULL
+            AND DATE(i.created_at) BETWEEN ? AND ?
+        """
+        commission_result = self.db.execute_query(commission_query, (from_date, to_date))
+        total_commission = commission_result[0]['total'] if commission_result else 0
+        
+        # محاسبه هزینه‌های جاری
+        expenses_query = """
+            SELECT COALESCE(SUM(amount), 0) as total
+            FROM expenses
+            WHERE DATE(date) BETWEEN ? AND ?
+        """
+        expenses_result = self.db.execute_query(expenses_query, (from_date, to_date))
+        total_expenses = expenses_result[0]['total'] if expenses_result else 0
+        
+        # محاسبه سود خالص
+        net_profit = total_sales - material_cost - total_commission - total_expenses
+        
+        # نمایش کارت‌های خلاصه
+        self.summary_layout.addWidget(
+            self.create_summary_card("فروش کل", f"{total_sales:,.0f} ریال", "#10B981")
+        )
+        self.summary_layout.addWidget(
+            self.create_summary_card("هزینه مواد", f"{material_cost:,.0f} ریال", "#F59E0B")
+        )
+        self.summary_layout.addWidget(
+            self.create_summary_card("کمیسیون", f"{total_commission:,.0f} ریال", "#F59E0B")
+        )
+        self.summary_layout.addWidget(
+            self.create_summary_card("هزینه‌های جاری", f"{total_expenses:,.0f} ریال", "#EF4444")
+        )
+        self.summary_layout.addWidget(
+            self.create_summary_card("سود خالص", f"{net_profit:,.0f} ریال", "#6366F1")
+        )
+        
+        # جدول تفصیلی
+        self.report_table.setColumnCount(2)
+        self.report_table.setHorizontalHeaderLabels(["مورد", "مبلغ"])
+        self.report_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.report_table.setRowCount(5)
+        
+        items = [
+            ("فروش کل", total_sales, "#10B981"),
+            ("منهای: هزینه مواد مصرفی", -material_cost, "#F59E0B"),
+            ("منهای: کمیسیون آرایشگران", -total_commission, "#F59E0B"),
+            ("منهای: هزینه‌های جاری", -total_expenses, "#EF4444"),
+            ("سود خالص", net_profit, "#6366F1"),
+        ]
+        
+        for i, (label, value, color) in enumerate(items):
+            item_label = QTableWidgetItem(label)
+            if i == 4:  # سود خالص
+                font = QFont()
+                font.setBold(True)
+                item_label.setFont(font)
+            self.report_table.setItem(i, 0, item_label)
+            
+            item_value = QTableWidgetItem(f"{abs(value):,.0f} ریال")
+            if i == 4:  # سود خالص
+                item_value.setFont(font)
+            self.report_table.setItem(i, 1, item_value)

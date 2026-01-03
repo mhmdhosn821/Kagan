@@ -42,25 +42,35 @@ if __name__ == "__main__":
     # ایجاد application
     app = QApplication(sys.argv)
     
-    # تنظیم فونت فارسی
-    font_id = QFontDatabase.addApplicationFont("assets/vazir.ttf")
+    # تنظیم فونت فارسی - Vazir
+    font_id = QFontDatabase.addApplicationFont("assets/fonts/Vazir.ttf")
+    if font_id == -1:
+        # fallback به فایل قدیمی
+        font_id = QFontDatabase.addApplicationFont("assets/vazir.ttf")
+    
     if font_id == -1:
         # اگر فایل فونت وجود نداشت، از فونت سیستم استفاده کن
         app.setFont(QFont("Tahoma", 10))
+        print("⚠️  فونت وزیر یافت نشد. از Tahoma استفاده می‌شود.")
     else:
         font_families = QFontDatabase.applicationFontFamilies(font_id)
         if font_families:
-            app.setFont(QFont(font_families[0], 10))
+            app.setFont(QFont(font_families[0], 11))
+            print(f"✅ فونت {font_families[0]} بارگذاری شد")
     
     # تنظیم RTL
     app.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
     
-    # بارگذاری استایل‌ها
+    # بارگذاری تم (روشن به عنوان پیشفرض)
+    from ui.theme_switcher import ThemeSwitcher
+    db_temp = Database()
     try:
-        with open("assets/styles.qss", "r", encoding="utf-8") as f:
-            app.setStyleSheet(f.read())
-    except FileNotFoundError:
-        print("⚠️  فایل استایل یافت نشد. از استایل پیشفرض استفاده می‌شود.")
+        result = db_temp.execute_query("SELECT value FROM settings WHERE key = 'theme'", ())
+        theme = result[0]['value'] if result else "light"
+    except:
+        theme = "light"
+    
+    ThemeSwitcher.apply_theme(app, theme)
     
     # مقداردهی اولیه دیتابیس
     db = Database()
