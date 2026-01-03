@@ -148,15 +148,15 @@ class MainWindow(QMainWindow):
         header_layout.setContentsMargins(20, 20, 20, 20)
         
         title = QLabel("🏪 کاگان ERP")
-        title.setStyleSheet("color: white; font-size: 20px; font-weight: bold;")
+        title.setStyleSheet("color: #1E293B; font-size: 20px; font-weight: bold;")  # مشکی
         header_layout.addWidget(title)
         
         user_label = QLabel(f"👤 {self.user['full_name']}")
-        user_label.setStyleSheet("color: rgba(255, 255, 255, 0.7); font-size: 12px;")
+        user_label.setStyleSheet("color: #334155; font-size: 12px;")  # خاکستری تیره
         header_layout.addWidget(user_label)
         
         role_label = QLabel(f"نقش: {self.get_role_display(self.user['role'])}")
-        role_label.setStyleSheet("color: rgba(255, 255, 255, 0.6); font-size: 11px;")
+        role_label.setStyleSheet("color: #64748B; font-size: 11px;")  # خاکستری
         header_layout.addWidget(role_label)
         
         header_widget.setLayout(header_layout)
@@ -165,7 +165,7 @@ class MainWindow(QMainWindow):
         # خط جداکننده
         line = QFrame()
         line.setFrameShape(QFrame.Shape.HLine)
-        line.setStyleSheet("background-color: rgba(255, 255, 255, 0.1);")
+        line.setStyleSheet("background-color: #E2E8F0;")  # خط جداکننده روشن
         layout.addWidget(line)
         
         # دکمه داشبورد
@@ -224,7 +224,7 @@ class MainWindow(QMainWindow):
         # خط جداکننده
         line2 = QFrame()
         line2.setFrameShape(QFrame.Shape.HLine)
-        line2.setStyleSheet("background-color: rgba(255, 255, 255, 0.1); margin: 10px 0;")
+        line2.setStyleSheet("background-color: #E2E8F0; margin: 10px 0;")
         layout.addWidget(line2)
         
         # منوهای دیگر

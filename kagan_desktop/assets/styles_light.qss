@@ -438,13 +438,13 @@ QSlider::handle:horizontal:hover {
 
 /* Sidebar styling */
 #sidebar {
-    background-color: #1E293B;
-    border: none;
+    background-color: #F8FAFC;  /* پسزمینه روشن */
+    border-left: 1px solid #E2E8F0;
 }
 
 #sidebarButton {
     background-color: transparent;
-    color: #E2E8F0;
+    color: #1E293B;  /* متن تیره/مشکی */
     border: none;
     text-align: right;
     padding: 15px 20px;
@@ -454,7 +454,7 @@ QSlider::handle:horizontal:hover {
 }
 
 #sidebarButton:hover {
-    background-color: #334155;
+    background-color: #E2E8F0;
 }
 
 #sidebarButton[active="true"] {
@@ -549,7 +549,7 @@ QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {
 /* Collapsible Menu Buttons */
 #menuButton {
     background-color: transparent;
-    color: #E2E8F0;
+    color: #1E293B;  /* متن تیره/مشکی */
     border: none;
     text-align: right;
     padding: 15px 20px;
@@ -560,16 +560,16 @@ QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {
 }
 
 #menuButton:hover {
-    background-color: #334155;
+    background-color: #E2E8F0;
 }
 
 #submenuContainer {
-    background-color: rgba(30, 41, 59, 0.5);
+    background-color: #F1F5F9;  /* پسزمینه روشنتر برای زیرمنو */
 }
 
 #submenuButton {
     background-color: transparent;
-    color: #CBD5E1;
+    color: #334155;  /* متن تیره برای زیرمنو */
     border: none;
     text-align: right;
     padding: 12px 24px;
@@ -579,8 +579,8 @@ QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {
 }
 
 #submenuButton:hover {
-    background-color: #334155;
-    color: white;
+    background-color: #E2E8F0;
+    color: #1E293B;
 }
 
 #logoutButton {
