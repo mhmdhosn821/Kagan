@@ -545,3 +545,56 @@ QSpinBox::down-button, QDoubleSpinBox::down-button {
 QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {
     background-color: #E2E8F0;
 }
+
+/* Collapsible Menu Buttons */
+#menuButton {
+    background-color: transparent;
+    color: #E2E8F0;
+    border: none;
+    text-align: right;
+    padding: 15px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    margin: 4px 8px;
+}
+
+#menuButton:hover {
+    background-color: #334155;
+}
+
+#submenuContainer {
+    background-color: rgba(30, 41, 59, 0.5);
+}
+
+#submenuButton {
+    background-color: transparent;
+    color: #CBD5E1;
+    border: none;
+    text-align: right;
+    padding: 12px 24px;
+    font-size: 13px;
+    margin: 2px 12px;
+    border-radius: 6px;
+}
+
+#submenuButton:hover {
+    background-color: #334155;
+    color: white;
+}
+
+#logoutButton {
+    background-color: #EF4444;
+    color: white;
+    border: none;
+    text-align: center;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 10px;
+    border-radius: 8px;
+}
+
+#logoutButton:hover {
+    background-color: #DC2626;
+}
