@@ -210,6 +210,12 @@ class MainWindow(QMainWindow):
         
         layout.addStretch()
         
+        # دکمه تغییر تم
+        from ui.theme_switcher import ThemeSwitcher
+        self.theme_switcher = ThemeSwitcher()
+        self.theme_switcher.theme_changed.connect(self.on_theme_changed)
+        layout.addWidget(self.theme_switcher)
+        
         # اطلاعات کاربر
         user_info = QLabel(f"خوش آمدید، {self.user['full_name']}")
         user_info.setStyleSheet("color: #7f8c8d; font-size: 12px;")
@@ -278,6 +284,17 @@ class MainWindow(QMainWindow):
             "barista": "باریستا"
         }
         return roles.get(role, role)
+    
+    def on_theme_changed(self, theme: str):
+        """رویداد تغییر تم"""
+        from PyQt6.QtWidgets import QApplication
+        from ui.theme_switcher import ThemeSwitcher
+        
+        # اعمال تم جدید
+        app = QApplication.instance()
+        ThemeSwitcher.apply_theme(app, theme)
+        
+        print(f"✨ تم به {theme} تغییر یافت")
     
     def logout(self):
         """خروج از سیستم"""
