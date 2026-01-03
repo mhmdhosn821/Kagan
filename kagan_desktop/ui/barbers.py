@@ -86,11 +86,11 @@ class BarbersPage(QWidget):
             actions_layout.setContentsMargins(2, 2, 2, 2)
             
             edit_btn = QPushButton("✏️ ویرایش")
-            edit_btn.clicked.connect(lambda checked, bid=barber['id']: self.edit_barber(bid))
+            edit_btn.clicked.connect(lambda checked, bid=barber_dict.get('id'): self.edit_barber(bid))
             actions_layout.addWidget(edit_btn)
             
             toggle_btn = QPushButton("🔄 تغییر وضعیت")
-            toggle_btn.clicked.connect(lambda checked, bid=barber['id']: self.toggle_status(bid))
+            toggle_btn.clicked.connect(lambda checked, bid=barber_dict.get('id'): self.toggle_status(bid))
             actions_layout.addWidget(toggle_btn)
             
             actions_widget.setLayout(actions_layout)
