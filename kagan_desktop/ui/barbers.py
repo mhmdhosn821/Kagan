@@ -70,12 +70,13 @@ class BarbersPage(QWidget):
         self.barbers_table.setRowCount(len(barbers))
         
         for i, barber in enumerate(barbers):
-            self.barbers_table.setItem(i, 0, QTableWidgetItem(barber['full_name']))
-            self.barbers_table.setItem(i, 1, QTableWidgetItem(barber['phone'] or "-"))
-            self.barbers_table.setItem(i, 2, QTableWidgetItem(barber['specialty'] or "-"))
-            self.barbers_table.setItem(i, 3, QTableWidgetItem(f"{barber['commission_percentage']}%"))
+            barber_dict = dict(barber)
+            self.barbers_table.setItem(i, 0, QTableWidgetItem(barber_dict.get('full_name', '')))
+            self.barbers_table.setItem(i, 1, QTableWidgetItem(barber_dict.get('phone') or "-"))
+            self.barbers_table.setItem(i, 2, QTableWidgetItem(barber_dict.get('specialty') or "-"))
+            self.barbers_table.setItem(i, 3, QTableWidgetItem(f"{barber_dict.get('commission_percentage', 0)}%"))
             
-            status = "فعال" if barber['is_active'] else "غیرفعال"
+            status = "فعال" if barber_dict.get('is_active') else "غیرفعال"
             status_item = QTableWidgetItem(status)
             self.barbers_table.setItem(i, 4, status_item)
             
@@ -197,13 +198,13 @@ class BarberDialog(QDialog):
         result = self.db.execute_query(query, (self.barber_id,))
         
         if result:
-            barber = result[0]
-            self.name_input.setText(barber['full_name'])
-            self.username_input.setText(barber['username'])
-            self.phone_input.setText(barber['phone'] or "")
-            self.specialty_input.setText(barber['specialty'] or "")
-            self.commission_input.setValue(barber['commission_percentage'])
-            self.active_checkbox.setChecked(barber['is_active'] == 1)
+            barber = dict(result[0])
+            self.name_input.setText(barber.get('full_name', ''))
+            self.username_input.setText(barber.get('username', ''))
+            self.phone_input.setText(barber.get('phone') or "")
+            self.specialty_input.setText(barber.get('specialty') or "")
+            self.commission_input.setValue(barber.get('commission_percentage', 0))
+            self.active_checkbox.setChecked(barber.get('is_active', 1) == 1)
     
     def save(self):
         """ذخیره اطلاعات"""

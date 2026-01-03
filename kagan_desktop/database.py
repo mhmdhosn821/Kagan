@@ -336,20 +336,20 @@ class Database:
         cursor = conn.cursor()
         
         default_users = [
-            ("admin", "admin123", "مدیر سیستم", "admin", 0),
-            ("barber1", "barber123", "آرایشگر اول", "barber", 30),
-            ("barista1", "barista123", "باریستا اول", "barista", 0),
+            ("admin", "admin123", "مدیر سیستم", "admin", 0, None, None),
+            ("barber1", "barber123", "آرایشگر اول", "barber", 30, "09121234567", "اصلاح، رنگ مو"),
+            ("barista1", "barista123", "باریستا اول", "barista", 0, None, None),
         ]
         
-        for username, password, full_name, role, commission in default_users:
+        for username, password, full_name, role, commission, phone, specialty in default_users:
             # بررسی وجود کاربر
             cursor.execute("SELECT id FROM users WHERE username = ?", (username,))
             if cursor.fetchone() is None:
                 password_hash = hashlib.sha256(password.encode()).hexdigest()
                 cursor.execute("""
-                    INSERT INTO users (username, password, full_name, role, commission_percentage)
-                    VALUES (?, ?, ?, ?, ?)
-                """, (username, password_hash, full_name, role, commission))
+                    INSERT INTO users (username, password, full_name, role, commission_percentage, phone, specialty)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, (username, password_hash, full_name, role, commission, phone, specialty))
         
         conn.commit()
     
