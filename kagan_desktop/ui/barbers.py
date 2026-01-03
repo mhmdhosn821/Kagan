@@ -72,8 +72,8 @@ class BarbersPage(QWidget):
         for i, barber in enumerate(barbers):
             barber_dict = dict(barber)
             self.barbers_table.setItem(i, 0, QTableWidgetItem(barber_dict.get('full_name', '')))
-            self.barbers_table.setItem(i, 1, QTableWidgetItem(barber_dict.get('phone') or "-"))
-            self.barbers_table.setItem(i, 2, QTableWidgetItem(barber_dict.get('specialty') or "-"))
+            self.barbers_table.setItem(i, 1, QTableWidgetItem(barber_dict.get('phone', '') or "-"))
+            self.barbers_table.setItem(i, 2, QTableWidgetItem(barber_dict.get('specialty', '') or "-"))
             self.barbers_table.setItem(i, 3, QTableWidgetItem(f"{barber_dict.get('commission_percentage', 0)}%"))
             
             status = "فعال" if barber_dict.get('is_active') else "غیرفعال"
