@@ -101,7 +101,7 @@ class LoginWindow(QWidget):
         login_frame.setLayout(login_layout)
         layout.addWidget(login_frame)
         
-        layout.addSpacing(15)
+        layout.addSpacing(30)
         
         # دکمه ورود
         self.login_btn = QPushButton("ورود به سیستم")
@@ -151,39 +151,42 @@ class LoginWindow(QWidget):
             }
             #fieldLabel {
                 color: white;
+                font-size: 14px;
+                font-weight: bold;
+                margin-bottom: 5px;
             }
             QLineEdit {
-                background: rgba(255, 255, 255, 0.25);
-                border: 2px solid rgba(255, 255, 255, 0.3);
-                border-radius: 10px;
+                background-color: rgba(255, 255, 255, 0.95);
+                color: #1a1a2e;
+                border: 2px solid rgba(200, 200, 200, 0.8);
+                border-radius: 12px;
                 padding: 12px 15px;
-                color: white;
-                font-size: 13px;
-                selection-background-color: rgba(255, 255, 255, 0.3);
+                font-size: 16px;
+                selection-background-color: #667eea;
             }
             QLineEdit::placeholder {
-                color: rgba(255, 255, 255, 0.6);
+                color: #888888;
             }
             QLineEdit:focus {
-                background: rgba(255, 255, 255, 0.3);
-                border: 2px solid rgba(255, 255, 255, 0.5);
+                border: 2px solid #667eea;
+                background-color: #ffffff;
             }
             #primaryButton {
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #4facfe, stop:1 #00f2fe);
+                    stop:0 #667eea, stop:1 #764ba2);
                 color: white;
                 border: none;
                 border-radius: 12px;
-                font-size: 15px;
+                padding: 18px;
+                font-size: 18px;
                 font-weight: bold;
             }
             #primaryButton:hover {
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #43a3f5, stop:1 #00dae5);
+                    stop:0 #764ba2, stop:1 #667eea);
             }
             #primaryButton:pressed {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #3899ec, stop:1 #00c8dc);
+                background: #5a5fd6;
             }
             #infoLabel {
                 color: rgba(255, 255, 255, 0.7);
