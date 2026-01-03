@@ -212,13 +212,13 @@ class LoginWindow(QWidget):
     
     def paintEvent(self, event):
         """رسم پسزمینه گرادیانت"""
-        super().paintEvent(event)
         painter = QPainter(self)
         gradient = QLinearGradient(0, 0, self.width(), self.height())
         gradient.setColorAt(0, QColor("#667eea"))
         gradient.setColorAt(1, QColor("#764ba2"))
         painter.fillRect(self.rect(), QBrush(gradient))
         painter.end()
+        super().paintEvent(event)
     
     def login(self):
         """انجام ورود"""
