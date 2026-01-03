@@ -15,3 +15,10 @@ arabic-reshaper==3.0.0
 python-bidi==0.4.2
 PyQt6==6.6.1
 PyQt6-Charts==6.6.0
+jdatetime>=4.1.0
+matplotlib>=3.7.0
+openpyxl>=3.1.0
+python-barcode>=0.15.0
+pyserial>=3.5
+requests>=2.28.0
+Pillow>=9.5.0

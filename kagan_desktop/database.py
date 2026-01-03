@@ -181,6 +181,146 @@ class Database:
             )
         """)
         
+        # جدول هزینههای جاری
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS expenses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                amount REAL NOT NULL,
+                category TEXT NOT NULL,
+                date TEXT NOT NULL,
+                description TEXT,
+                created_by INTEGER,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (created_by) REFERENCES users(id)
+            )
+        """)
+        
+        # جدول صندوق
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS cashbox (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                type TEXT NOT NULL,
+                amount REAL NOT NULL,
+                description TEXT,
+                date TEXT NOT NULL,
+                created_by INTEGER,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (created_by) REFERENCES users(id)
+            )
+        """)
+        
+        # جدول کارکرد پرسنل
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS staff_attendance (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                date TEXT NOT NULL,
+                check_in TEXT,
+                check_out TEXT,
+                overtime_hours REAL DEFAULT 0,
+                notes TEXT,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+        
+        # جدول کد تخفیف
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS discount_codes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                code TEXT UNIQUE NOT NULL,
+                type TEXT NOT NULL,
+                value REAL NOT NULL,
+                max_uses INTEGER,
+                used_count INTEGER DEFAULT 0,
+                expires_at TEXT,
+                customer_id INTEGER,
+                is_active INTEGER DEFAULT 1,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (customer_id) REFERENCES customers(id)
+            )
+        """)
+        
+        # جدول تأمینکنندگان
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS suppliers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                phone TEXT,
+                address TEXT,
+                notes TEXT,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # جدول سفارش خرید
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS purchase_orders (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                supplier_id INTEGER NOT NULL,
+                status TEXT DEFAULT 'pending',
+                total_amount REAL NOT NULL,
+                notes TEXT,
+                created_by INTEGER,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (supplier_id) REFERENCES suppliers(id),
+                FOREIGN KEY (created_by) REFERENCES users(id)
+            )
+        """)
+        
+        # جدول آیتم‌های سفارش خرید
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS purchase_order_items (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                order_id INTEGER NOT NULL,
+                inventory_id INTEGER NOT NULL,
+                quantity REAL NOT NULL,
+                unit_price REAL NOT NULL,
+                total_price REAL NOT NULL,
+                FOREIGN KEY (order_id) REFERENCES purchase_orders(id),
+                FOREIGN KEY (inventory_id) REFERENCES inventory(id)
+            )
+        """)
+        
+        # جدول چکلیست روزانه
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS daily_checklist (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                type TEXT NOT NULL,
+                is_active INTEGER DEFAULT 1,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # جدول سابقه چکلیست
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS checklist_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                checklist_id INTEGER NOT NULL,
+                date TEXT NOT NULL,
+                completed_by INTEGER,
+                completed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (checklist_id) REFERENCES daily_checklist(id),
+                FOREIGN KEY (completed_by) REFERENCES users(id)
+            )
+        """)
+        
+        # جدول پیامکها
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS sms_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                phone TEXT NOT NULL,
+                message TEXT NOT NULL,
+                type TEXT NOT NULL,
+                status TEXT DEFAULT 'pending',
+                sent_at TEXT,
+                error_message TEXT,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
         conn.commit()
         
         # ایجاد کاربران پیشفرض
