@@ -25,75 +25,92 @@ class LoginWindow(QWidget):
     def init_ui(self):
         """ایجاد رابط کاربری"""
         self.setWindowTitle("ورود به سیستم - Kagan ERP")
-        self.setFixedSize(400, 500)
+        self.setFixedSize(480, 600)
         
         # Layout اصلی
         layout = QVBoxLayout()
-        layout.setContentsMargins(40, 40, 40, 40)
-        layout.setSpacing(20)
+        layout.setContentsMargins(50, 50, 50, 50)
+        layout.setSpacing(25)
         
         # لوگو
-        logo_label = QLabel()
-        try:
-            pixmap = QPixmap("assets/logo.png")
-            if not pixmap.isNull():
-                logo_label.setPixmap(pixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio))
-        except:
-            pass
+        logo_label = QLabel("🏪")
         logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        logo_font = QFont()
+        logo_font.setPointSize(48)
+        logo_label.setFont(logo_font)
         layout.addWidget(logo_label)
         
         # عنوان
         title = QLabel("سیستم ERP کاگان")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        title.setObjectName("titleLabel")
         title_font = QFont()
-        title_font.setPointSize(18)
+        title_font.setPointSize(24)
         title_font.setBold(True)
         title.setFont(title_font)
         layout.addWidget(title)
         
         subtitle = QLabel("مدیریت آرایشگاه و کافه")
         subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        subtitle.setStyleSheet("color: #7f8c8d;")
+        subtitle.setObjectName("subtitleLabel")
+        subtitle_font = QFont()
+        subtitle_font.setPointSize(13)
+        subtitle.setFont(subtitle_font)
         layout.addWidget(subtitle)
         
-        layout.addSpacing(20)
+        layout.addSpacing(30)
         
         # فریم ورود
         login_frame = QFrame()
         login_frame.setObjectName("loginFrame")
         login_layout = QVBoxLayout()
-        login_layout.setSpacing(15)
+        login_layout.setSpacing(20)
+        login_layout.setContentsMargins(30, 30, 30, 30)
         
         # نام کاربری
-        username_label = QLabel("نام کاربری:")
+        username_label = QLabel("نام کاربری")
+        username_label.setObjectName("fieldLabel")
+        label_font = QFont()
+        label_font.setPointSize(12)
+        label_font.setBold(True)
+        username_label.setFont(label_font)
         login_layout.addWidget(username_label)
         
         self.username_input = QLineEdit()
         self.username_input.setPlaceholderText("نام کاربری خود را وارد کنید")
-        self.username_input.setMinimumHeight(40)
+        self.username_input.setMinimumHeight(50)
+        input_font = QFont()
+        input_font.setPointSize(12)
+        self.username_input.setFont(input_font)
         login_layout.addWidget(self.username_input)
         
         # رمز عبور
-        password_label = QLabel("رمز عبور:")
+        password_label = QLabel("رمز عبور")
+        password_label.setObjectName("fieldLabel")
+        password_label.setFont(label_font)
         login_layout.addWidget(password_label)
         
         self.password_input = QLineEdit()
         self.password_input.setPlaceholderText("رمز عبور خود را وارد کنید")
         self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
-        self.password_input.setMinimumHeight(40)
+        self.password_input.setMinimumHeight(50)
+        self.password_input.setFont(input_font)
         self.password_input.returnPressed.connect(self.login)
         login_layout.addWidget(self.password_input)
         
         login_frame.setLayout(login_layout)
         layout.addWidget(login_frame)
         
-        layout.addSpacing(10)
+        layout.addSpacing(15)
         
         # دکمه ورود
-        self.login_btn = QPushButton("ورود")
-        self.login_btn.setMinimumHeight(45)
+        self.login_btn = QPushButton("ورود به سیستم")
+        self.login_btn.setMinimumHeight(55)
         self.login_btn.setObjectName("primaryButton")
+        btn_font = QFont()
+        btn_font.setPointSize(14)
+        btn_font.setBold(True)
+        self.login_btn.setFont(btn_font)
         self.login_btn.clicked.connect(self.login)
         layout.addWidget(self.login_btn)
         
@@ -104,7 +121,10 @@ class LoginWindow(QWidget):
             "• آرایشگر: barber1 / barber123\n"
             "• باریستا: barista1 / barista123"
         )
-        info_label.setStyleSheet("color: #95a5a6; font-size: 10px;")
+        info_label.setObjectName("infoLabel")
+        info_font = QFont()
+        info_font.setPointSize(10)
+        info_label.setFont(info_font)
         info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(info_label)
         
@@ -112,42 +132,61 @@ class LoginWindow(QWidget):
         
         self.setLayout(layout)
         
-        # استایل
+        # استایل Glass Morphism
         self.setStyleSheet("""
             QWidget {
-                background-color: #ecf0f1;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #667eea, stop:1 #764ba2);
+            }
+            #titleLabel {
+                color: white;
+            }
+            #subtitleLabel {
+                color: rgba(255, 255, 255, 0.9);
             }
             #loginFrame {
-                background-color: white;
-                border-radius: 10px;
-                padding: 20px;
+                background: rgba(255, 255, 255, 0.15);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 20px;
             }
-            QLabel {
-                color: #2c3e50;
+            #fieldLabel {
+                color: white;
             }
             QLineEdit {
-                border: 2px solid #bdc3c7;
-                border-radius: 5px;
-                padding: 8px;
-                font-size: 12px;
-                background-color: white;
+                background: rgba(255, 255, 255, 0.25);
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                border-radius: 10px;
+                padding: 12px 15px;
+                color: white;
+                font-size: 13px;
+                selection-background-color: rgba(255, 255, 255, 0.3);
+            }
+            QLineEdit::placeholder {
+                color: rgba(255, 255, 255, 0.6);
             }
             QLineEdit:focus {
-                border-color: #3498db;
+                background: rgba(255, 255, 255, 0.3);
+                border: 2px solid rgba(255, 255, 255, 0.5);
             }
             #primaryButton {
-                background-color: #3498db;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #4facfe, stop:1 #00f2fe);
                 color: white;
                 border: none;
-                border-radius: 5px;
-                font-size: 14px;
+                border-radius: 12px;
+                font-size: 15px;
                 font-weight: bold;
             }
             #primaryButton:hover {
-                background-color: #2980b9;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #43a3f5, stop:1 #00dae5);
             }
             #primaryButton:pressed {
-                background-color: #21618c;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #3899ec, stop:1 #00c8dc);
+            }
+            #infoLabel {
+                color: rgba(255, 255, 255, 0.7);
             }
         """)
     

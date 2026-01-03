@@ -1,13 +1,82 @@
 """
-پنجره اصلی با منوی کناری
+پنجره اصلی با منوی کناری و زیرمنوهای تاشو
 """
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-    QPushButton, QStackedWidget, QFrame, QMessageBox
+    QPushButton, QStackedWidget, QFrame, QMessageBox, QScrollArea
 )
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QFont
 from database import Database
+
+
+class CollapsibleMenu(QWidget):
+    """ویجت منوی تاشو"""
+    
+    menu_clicked = pyqtSignal(int)  # سیگنال برای کلیک روی آیتم منو
+    
+    def __init__(self, title: str, icon: str, items: list):
+        """
+        items: لیست از تاپل‌های (نام، شماره صفحه)
+        """
+        super().__init__()
+        self.title = title
+        self.icon = icon
+        self.items = items
+        self.is_expanded = False
+        self.submenu_buttons = []
+        self.init_ui()
+    
+    def init_ui(self):
+        """ایجاد رابط کاربری"""
+        layout = QVBoxLayout()
+        layout.setSpacing(0)
+        layout.setContentsMargins(0, 0, 0, 0)
+        
+        # دکمه اصلی
+        self.main_btn = QPushButton(f"{self.icon} {self.title} ▼")
+        self.main_btn.setObjectName("menuButton")
+        self.main_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.main_btn.clicked.connect(self.toggle)
+        layout.addWidget(self.main_btn)
+        
+        # کانتینر زیرمنو
+        self.submenu_container = QWidget()
+        self.submenu_container.setObjectName("submenuContainer")
+        submenu_layout = QVBoxLayout()
+        submenu_layout.setSpacing(0)
+        submenu_layout.setContentsMargins(0, 0, 0, 0)
+        
+        for item_name, page_index in self.items:
+            btn = QPushButton(f"    {item_name}")
+            btn.setObjectName("submenuButton")
+            btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            btn.clicked.connect(lambda checked, idx=page_index: self.menu_clicked.emit(idx))
+            submenu_layout.addWidget(btn)
+            self.submenu_buttons.append(btn)
+        
+        self.submenu_container.setLayout(submenu_layout)
+        self.submenu_container.setVisible(False)
+        layout.addWidget(self.submenu_container)
+        
+        self.setLayout(layout)
+    
+    def toggle(self):
+        """تغییر وضعیت باز/بسته"""
+        self.is_expanded = not self.is_expanded
+        self.submenu_container.setVisible(self.is_expanded)
+        arrow = "▲" if self.is_expanded else "▼"
+        self.main_btn.setText(f"{self.icon} {self.title} {arrow}")
+    
+    def expand(self):
+        """باز کردن منو"""
+        if not self.is_expanded:
+            self.toggle()
+    
+    def collapse(self):
+        """بستن منو"""
+        if self.is_expanded:
+            self.toggle()
 
 
 class MainWindow(QMainWindow):
@@ -57,51 +126,115 @@ class MainWindow(QMainWindow):
         
         central_widget.setLayout(main_layout)
         
-        # استایل کلی
+        # استایل کلی با Glass Morphism
         self.setStyleSheet("""
             QMainWindow {
-                background-color: #ecf0f1;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #f5f7fa, stop:1 #c3cfe2);
             }
             #contentArea {
-                background-color: #ecf0f1;
+                background: transparent;
             }
             #sidebar {
-                background-color: #2c3e50;
-                min-width: 220px;
-                max-width: 220px;
+                background: rgba(44, 62, 80, 0.95);
+                backdrop-filter: blur(10px);
+                min-width: 260px;
+                max-width: 260px;
+                border-left: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            QScrollArea {
+                background: transparent;
+                border: none;
             }
             #sidebarButton {
                 background-color: transparent;
-                color: #ecf0f1;
+                color: rgba(255, 255, 255, 0.9);
                 border: none;
                 text-align: right;
                 padding: 15px 20px;
-                font-size: 13px;
+                font-size: 15px;
+                font-weight: 500;
             }
             #sidebarButton:hover {
-                background-color: #34495e;
+                background-color: rgba(52, 73, 94, 0.7);
             }
             #sidebarButton[active="true"] {
-                background-color: #3498db;
-                border-right: 4px solid #2980b9;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #4facfe, stop:1 #00f2fe);
+                border-right: 4px solid #3498db;
+                color: white;
+                font-weight: bold;
+            }
+            #menuButton {
+                background-color: transparent;
+                color: rgba(255, 255, 255, 0.95);
+                border: none;
+                text-align: right;
+                padding: 15px 20px;
+                font-size: 15px;
+                font-weight: 600;
+            }
+            #menuButton:hover {
+                background-color: rgba(52, 73, 94, 0.7);
+            }
+            #submenuContainer {
+                background-color: rgba(26, 32, 44, 0.5);
+            }
+            #submenuButton {
+                background-color: transparent;
+                color: rgba(255, 255, 255, 0.8);
+                border: none;
+                text-align: right;
+                padding: 12px 24px;
+                font-size: 13px;
+            }
+            #submenuButton:hover {
+                background-color: rgba(52, 73, 94, 0.7);
+                color: white;
+            }
+            #logoutButton {
+                background-color: rgba(231, 76, 60, 0.8);
+                color: white;
+                border: none;
+                text-align: center;
+                padding: 15px 20px;
+                font-size: 15px;
+                font-weight: 600;
+                margin: 10px;
+                border-radius: 8px;
+            }
+            #logoutButton:hover {
+                background-color: rgba(192, 57, 43, 0.9);
             }
             #header {
-                background-color: white;
-                border-radius: 10px;
-                padding: 15px 20px;
+                background: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                border-radius: 15px;
+                padding: 20px 25px;
                 margin-bottom: 20px;
             }
             #pageContainer {
-                background-color: white;
-                border-radius: 10px;
-                padding: 20px;
+                background: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                border-radius: 15px;
+                padding: 25px;
             }
         """)
     
     def create_sidebar(self) -> QWidget:
-        """ایجاد منوی کناری"""
+        """ایجاد منوی کناری با زیرمنوهای تاشو"""
         sidebar = QWidget()
         sidebar.setObjectName("sidebar")
+        
+        # ScrollArea برای منو
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        
+        scroll_content = QWidget()
         layout = QVBoxLayout()
         layout.setSpacing(5)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -112,15 +245,15 @@ class MainWindow(QMainWindow):
         header_layout.setContentsMargins(20, 20, 20, 20)
         
         title = QLabel("🏪 کاگان ERP")
-        title.setStyleSheet("color: white; font-size: 18px; font-weight: bold;")
+        title.setStyleSheet("color: white; font-size: 20px; font-weight: bold;")
         header_layout.addWidget(title)
         
         user_label = QLabel(f"👤 {self.user['full_name']}")
-        user_label.setStyleSheet("color: #95a5a6; font-size: 11px;")
+        user_label.setStyleSheet("color: rgba(255, 255, 255, 0.7); font-size: 12px;")
         header_layout.addWidget(user_label)
         
         role_label = QLabel(f"نقش: {self.get_role_display(self.user['role'])}")
-        role_label.setStyleSheet("color: #95a5a6; font-size: 10px;")
+        role_label.setStyleSheet("color: rgba(255, 255, 255, 0.6); font-size: 11px;")
         header_layout.addWidget(role_label)
         
         header_widget.setLayout(header_layout)
@@ -129,15 +262,83 @@ class MainWindow(QMainWindow):
         # خط جداکننده
         line = QFrame()
         line.setFrameShape(QFrame.Shape.HLine)
-        line.setStyleSheet("background-color: #34495e;")
+        line.setStyleSheet("background-color: rgba(255, 255, 255, 0.1);")
         layout.addWidget(line)
         
-        # دکمه‌های منو
-        self.menu_buttons = []
+        # دکمه داشبورد
+        dashboard_btn = QPushButton("📊 داشبورد")
+        dashboard_btn.setObjectName("sidebarButton")
+        dashboard_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        dashboard_btn.clicked.connect(lambda: self.switch_page(0))
+        layout.addWidget(dashboard_btn)
+        self.menu_buttons = [dashboard_btn]
         
-        menus = self.get_menu_items()
+        # لیست منوهای تاشو
+        self.collapsible_menus = []
         
-        for icon, text, page_index in menus:
+        # منوی آرایشگاه
+        if self.user['role'] in ['admin', 'barber']:
+            barbershop_items = [
+                ("داشبورد آرایشگاه", 3),
+                ("خدمات", 13),
+                ("آرایشگران", 14),
+                ("نوبتدهی", 5),
+                ("فاکتور آرایشگاه", 6),
+                ("گزارش عملکرد", 15),
+            ]
+            barbershop_menu = CollapsibleMenu("آرایشگاه", "💇", barbershop_items)
+            barbershop_menu.menu_clicked.connect(self.switch_page)
+            layout.addWidget(barbershop_menu)
+            self.collapsible_menus.append(barbershop_menu)
+        
+        # منوی کافهبار
+        if self.user['role'] in ['admin', 'barista']:
+            cafe_items = [
+                ("داشبورد کافه", 4),
+                ("محصولات", 16),
+                ("باریستاها", 17),
+                ("فاکتور کافه", 6),
+                ("دستور ساخت", 18),
+            ]
+            cafe_menu = CollapsibleMenu("کافهبار", "☕", cafe_items)
+            cafe_menu.menu_clicked.connect(self.switch_page)
+            layout.addWidget(cafe_menu)
+            self.collapsible_menus.append(cafe_menu)
+        
+        # منوی انبار
+        if self.user['role'] == 'admin':
+            inventory_items = [
+                ("انبار کافه", 2),
+                ("انبار آرایشگاه", 2),
+                ("هشدار موجودی", 19),
+                ("سفارش خرید", 20),
+            ]
+            inventory_menu = CollapsibleMenu("انبار", "📦", inventory_items)
+            inventory_menu.menu_clicked.connect(self.switch_page)
+            layout.addWidget(inventory_menu)
+            self.collapsible_menus.append(inventory_menu)
+        
+        # خط جداکننده
+        line2 = QFrame()
+        line2.setFrameShape(QFrame.Shape.HLine)
+        line2.setStyleSheet("background-color: rgba(255, 255, 255, 0.1); margin: 10px 0;")
+        layout.addWidget(line2)
+        
+        # منوهای دیگر
+        other_menus = []
+        if self.user['role'] in ['admin', 'barber', 'barista']:
+            other_menus.append(("👥", "مشتریان", 1))
+        if self.user['role'] == 'admin':
+            other_menus.extend([
+                ("📈", "گزارشات", 7),
+                ("💰", "صندوق", 10),
+                ("💵", "هزینهها", 9),
+                ("👨‍💼", "پرسنل", 11),
+                ("📱", "پیامک", 12),
+                ("⚙️", "تنظیمات", 8),
+            ])
+        
+        for icon, text, page_index in other_menus:
             btn = QPushButton(f"{icon} {text}")
             btn.setObjectName("sidebarButton")
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -149,54 +350,19 @@ class MainWindow(QMainWindow):
         
         # دکمه خروج
         logout_btn = QPushButton("🚪 خروج")
-        logout_btn.setObjectName("sidebarButton")
-        logout_btn.setStyleSheet("margin-top: 10px; border-top: 1px solid #34495e;")
+        logout_btn.setObjectName("logoutButton")
         logout_btn.clicked.connect(self.logout)
         layout.addWidget(logout_btn)
         
-        sidebar.setLayout(layout)
+        scroll_content.setLayout(layout)
+        scroll.setWidget(scroll_content)
+        
+        sidebar_layout = QVBoxLayout()
+        sidebar_layout.setContentsMargins(0, 0, 0, 0)
+        sidebar_layout.addWidget(scroll)
+        sidebar.setLayout(sidebar_layout)
+        
         return sidebar
-    
-    def get_menu_items(self) -> list:
-        """دریافت آیتم‌های منو بر اساس نقش کاربر"""
-        role = self.user['role']
-        
-        # منوهای مشترک
-        menus = [
-            ("📊", "داشبورد", 0),
-        ]
-        
-        # دسترسی‌های ادمین
-        if role == "admin":
-            menus.extend([
-                ("👥", "مشتریان", 1),
-                ("📦", "انبار", 2),
-                ("💇", "آرایشگاه", 3),
-                ("☕", "کافه", 4),
-                ("📅", "نوبت‌دهی", 5),
-                ("🧾", "فاکتور", 6),
-                ("📈", "گزارشات", 7),
-                ("💵", "هزینه‌ها", 9),
-                ("💰", "صندوق", 10),
-                ("👨‍💼", "پرسنل", 11),
-                ("📱", "پیامک", 12),
-                ("⚙️", "تنظیمات", 8),
-            ])
-        elif role == "barber":
-            menus.extend([
-                ("👥", "مشتریان", 1),
-                ("💇", "آرایشگاه", 3),
-                ("📅", "نوبت‌دهی", 5),
-                ("🧾", "فاکتور", 6),
-            ])
-        elif role == "barista":
-            menus.extend([
-                ("👥", "مشتریان", 1),
-                ("☕", "کافه", 4),
-                ("🧾", "فاکتور", 6),
-            ])
-        
-        return menus
     
     def create_header(self) -> QWidget:
         """ایجاد هدر صفحه"""
@@ -206,7 +372,7 @@ class MainWindow(QMainWindow):
         
         self.page_title = QLabel("داشبورد")
         title_font = QFont()
-        title_font.setPointSize(16)
+        title_font.setPointSize(18)
         title_font.setBold(True)
         self.page_title.setFont(title_font)
         self.page_title.setStyleSheet("color: #2c3e50;")
@@ -222,7 +388,10 @@ class MainWindow(QMainWindow):
         
         # اطلاعات کاربر
         user_info = QLabel(f"خوش آمدید، {self.user['full_name']}")
-        user_info.setStyleSheet("color: #7f8c8d; font-size: 12px;")
+        user_font = QFont()
+        user_font.setPointSize(12)
+        user_info.setFont(user_font)
+        user_info.setStyleSheet("color: #7f8c8d;")
         layout.addWidget(user_info)
         
         header.setLayout(layout)
@@ -243,21 +412,34 @@ class MainWindow(QMainWindow):
         from ui.cashbox import CashboxPage
         from ui.staff import StaffPage
         from ui.sms_panel import SMSPanelPage
+        from ui.barbers import BarbersPage
+        from ui.baristas import BaristasPage
+        from ui.barber_report import BarberReportPage
         
         # افزودن صفحات
-        self.pages.addWidget(DashboardPage(self.db, self.user))  # 0
-        self.pages.addWidget(CustomersPage(self.db, self.user))  # 1
-        self.pages.addWidget(InventoryPage(self.db, self.user))  # 2
-        self.pages.addWidget(BarbershopPage(self.db, self.user))  # 3
-        self.pages.addWidget(CafePage(self.db, self.user))  # 4
-        self.pages.addWidget(BookingPage(self.db, self.user))  # 5
-        self.pages.addWidget(InvoicesPage(self.db, self.user))  # 6
-        self.pages.addWidget(ReportsPage(self.db, self.user))  # 7
-        self.pages.addWidget(SettingsPage(self.db, self.user))  # 8
-        self.pages.addWidget(ExpensesPage(self.db, self.user))  # 9
-        self.pages.addWidget(CashboxPage(self.db, self.user))  # 10
-        self.pages.addWidget(StaffPage(self.db, self.user))  # 11
-        self.pages.addWidget(SMSPanelPage(self.db, self.user))  # 12
+        self.pages.addWidget(DashboardPage(self.db, self.user))  # 0 - داشبورد
+        self.pages.addWidget(CustomersPage(self.db, self.user))  # 1 - مشتریان
+        self.pages.addWidget(InventoryPage(self.db, self.user))  # 2 - انبار
+        self.pages.addWidget(BarbershopPage(self.db, self.user))  # 3 - آرایشگاه
+        self.pages.addWidget(CafePage(self.db, self.user))  # 4 - کافه
+        self.pages.addWidget(BookingPage(self.db, self.user))  # 5 - نوبتدهی
+        self.pages.addWidget(InvoicesPage(self.db, self.user))  # 6 - فاکتور
+        self.pages.addWidget(ReportsPage(self.db, self.user))  # 7 - گزارشات
+        self.pages.addWidget(SettingsPage(self.db, self.user))  # 8 - تنظیمات
+        self.pages.addWidget(ExpensesPage(self.db, self.user))  # 9 - هزینهها
+        self.pages.addWidget(CashboxPage(self.db, self.user))  # 10 - صندوق
+        self.pages.addWidget(StaffPage(self.db, self.user))  # 11 - پرسنل
+        self.pages.addWidget(SMSPanelPage(self.db, self.user))  # 12 - پیامک
+        
+        # صفحات جدید برای زیرمنوها
+        self.pages.addWidget(BarbershopPage(self.db, self.user))  # 13 - خدمات (استفاده از صفحه آرایشگاه)
+        self.pages.addWidget(BarbersPage(self.db, self.user))  # 14 - آرایشگران
+        self.pages.addWidget(BarberReportPage(self.db, self.user))  # 15 - گزارش عملکرد
+        self.pages.addWidget(CafePage(self.db, self.user))  # 16 - محصولات (استفاده از صفحه کافه)
+        self.pages.addWidget(BaristasPage(self.db, self.user))  # 17 - باریستاها
+        self.pages.addWidget(CafePage(self.db, self.user))  # 18 - دستور ساخت (استفاده از صفحه کافه)
+        self.pages.addWidget(InventoryPage(self.db, self.user))  # 19 - هشدار موجودی
+        self.pages.addWidget(InventoryPage(self.db, self.user))  # 20 - سفارش خرید
         
         # تنظیم صفحه اول
         self.switch_page(0)
@@ -267,12 +449,10 @@ class MainWindow(QMainWindow):
         self.pages.setCurrentIndex(index)
         
         # بروزرسانی دکمه‌های منو
-        for i, btn in enumerate(self.menu_buttons):
-            if i < len(self.get_menu_items()):
-                menu_index = self.get_menu_items()[i][2]
-                btn.setProperty("active", "true" if menu_index == index else "false")
-                btn.style().unpolish(btn)
-                btn.style().polish(btn)
+        for btn in self.menu_buttons:
+            btn.setProperty("active", "false")
+            btn.style().unpolish(btn)
+            btn.style().polish(btn)
         
         # بروزرسانی عنوان
         page_titles = {
@@ -281,14 +461,22 @@ class MainWindow(QMainWindow):
             2: "مدیریت انبار",
             3: "بخش آرایشگاه",
             4: "بخش کافه",
-            5: "نوبت‌دهی",
+            5: "نوبتدهی",
             6: "فاکتورزنی",
             7: "گزارشات",
             8: "تنظیمات",
             9: "مدیریت هزینه‌های جاری",
             10: "مدیریت صندوق",
             11: "مدیریت کارکرد پرسنل",
-            12: "پنل مدیریت پیامک"
+            12: "پنل مدیریت پیامک",
+            13: "خدمات آرایشگاه",
+            14: "مدیریت آرایشگران",
+            15: "گزارش عملکرد آرایشگران",
+            16: "محصولات کافه",
+            17: "مدیریت باریستاها",
+            18: "دستور ساخت محصولات",
+            19: "هشدار موجودی",
+            20: "سفارش خرید",
         }
         self.page_title.setText(page_titles.get(index, ""))
     

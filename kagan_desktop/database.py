@@ -35,6 +35,9 @@ class Database:
                 full_name TEXT NOT NULL,
                 role TEXT NOT NULL,
                 commission_percentage REAL DEFAULT 0,
+                phone TEXT,
+                specialty TEXT,
+                shift TEXT,
                 is_active INTEGER DEFAULT 1,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP
             )
