@@ -4,7 +4,7 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget,
     QTableWidgetItem, QHeaderView, QLineEdit, QDialog, QLabel,
-    QFormLayout, QComboBox, QDoubleSpinBox, QMessageBox, QTabWidget
+    QFormLayout, QComboBox, QDoubleSpinBox, QMessageBox, QTabWidget, QFrame
 )
 from PyQt6.QtCore import Qt
 
@@ -38,22 +38,52 @@ class InventoryPage(QWidget):
     
     def create_inventory_tab(self, inventory_type: str) -> QWidget:
         """ایجاد تب انبار"""
+        from PyQt6.QtWidgets import QScrollArea
+        from PyQt6.QtCore import Qt
+        
+        # ScrollArea برای محتوا
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        
         widget = QWidget()
         layout = QVBoxLayout()
+        layout.setSpacing(15)
         
         # نوار ابزار
         toolbar = QHBoxLayout()
+        toolbar.setSpacing(10)
         
         # جستجو
         search_input = QLineEdit()
-        search_input.setPlaceholderText("جستجو...")
+        search_input.setPlaceholderText("🔍 جستجو کالا...")
         search_input.setObjectName(f"search_{inventory_type}")
-        toolbar.addWidget(search_input)
+        search_input.setMinimumHeight(40)
+        toolbar.addWidget(search_input, 2)
         
         # دکمه افزودن
         add_btn = QPushButton("➕ افزودن کالا")
+        add_btn.setObjectName("primaryButton")
+        add_btn.setMinimumHeight(40)
+        add_btn.setMinimumWidth(150)
         add_btn.clicked.connect(lambda: self.add_item(inventory_type))
         toolbar.addWidget(add_btn)
+        
+        # دکمه افزودن موجودی
+        stock_btn = QPushButton("📦 افزودن موجودی")
+        stock_btn.setObjectName("successButton")
+        stock_btn.setMinimumHeight(40)
+        stock_btn.setMinimumWidth(150)
+        stock_btn.clicked.connect(lambda: self.show_add_stock_dialog(inventory_type))
+        toolbar.addWidget(stock_btn)
+        
+        # دکمه هشدار موجودی
+        alert_btn = QPushButton("⚠️ هشدارها")
+        alert_btn.setObjectName("warningButton")
+        alert_btn.setMinimumHeight(40)
+        alert_btn.setMinimumWidth(120)
+        alert_btn.clicked.connect(lambda: self.show_alerts(inventory_type))
+        toolbar.addWidget(alert_btn)
         
         layout.addLayout(toolbar)
         
@@ -67,16 +97,18 @@ class InventoryPage(QWidget):
         table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         table.setAlternatingRowColors(True)
         table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        table.setMinimumHeight(400)
         
         layout.addWidget(table)
         
         widget.setLayout(layout)
+        scroll.setWidget(widget)
         
         # بارگذاری داده‌ها
         search_input.textChanged.connect(lambda: self.load_inventory(inventory_type, table, search_input))
         self.load_inventory(inventory_type, table, search_input)
         
-        return widget
+        return scroll
     
     def load_inventory(self, inventory_type: str, table: QTableWidget, search_input: QLineEdit):
         """بارگذاری کالاهای انبار"""
@@ -128,14 +160,17 @@ class InventoryPage(QWidget):
             actions_widget = QWidget()
             actions_layout = QHBoxLayout()
             actions_layout.setContentsMargins(2, 2, 2, 2)
+            actions_layout.setSpacing(5)
             
-            add_stock_btn = QPushButton("➕")
-            add_stock_btn.setMaximumWidth(30)
+            add_stock_btn = QPushButton("📦 موجودی")
+            add_stock_btn.setObjectName("successButton")
+            add_stock_btn.setMinimumWidth(80)
             add_stock_btn.clicked.connect(lambda checked, iid=item['id']: self.add_stock(iid))
             actions_layout.addWidget(add_stock_btn)
             
-            edit_btn = QPushButton("✏️")
-            edit_btn.setMaximumWidth(30)
+            edit_btn = QPushButton("✏️ ویرایش")
+            edit_btn.setObjectName("infoButton")
+            edit_btn.setMinimumWidth(80)
             edit_btn.clicked.connect(lambda checked, iid=item['id']: self.edit_item(iid))
             actions_layout.addWidget(edit_btn)
             
@@ -179,6 +214,71 @@ class InventoryPage(QWidget):
                 search = self.findChild(QLineEdit, f"search_{inventory_type}")
                 if table and search:
                     self.load_inventory(inventory_type, table, search)
+    
+    def show_add_stock_dialog(self, inventory_type: str):
+        """نمایش دیالوگ افزودن موجودی برای کالاهای کم موجود"""
+        query = """
+            SELECT * FROM inventory 
+            WHERE inventory_type = ? AND quantity <= min_stock_alert
+            ORDER BY name
+        """
+        items = self.db.execute_query(query, (inventory_type,))
+        
+        if not items:
+            QMessageBox.information(self, "اطلاع", "کالای کم‌موجودی وجود ندارد.")
+            return
+        
+        # نمایش لیست کالاهای کم‌موجود
+        from PyQt6.QtWidgets import QListWidget, QListWidgetItem
+        
+        dialog = QDialog(self)
+        dialog.setWindowTitle("کالاهای کم‌موجود")
+        dialog.setMinimumSize(500, 400)
+        
+        layout = QVBoxLayout()
+        
+        label = QLabel(f"کالاهای کم‌موجود ({len(items)} مورد):")
+        layout.addWidget(label)
+        
+        list_widget = QListWidget()
+        for item in items:
+            list_item = QListWidgetItem(f"{item['name']} - موجودی: {item['quantity']:.1f} {item['unit']}")
+            list_item.setData(Qt.ItemDataRole.UserRole, item['id'])
+            list_widget.addItem(list_item)
+        
+        list_widget.itemDoubleClicked.connect(
+            lambda item: self.add_stock(item.data(Qt.ItemDataRole.UserRole))
+        )
+        layout.addWidget(list_widget)
+        
+        close_btn = QPushButton("بستن")
+        close_btn.clicked.connect(dialog.close)
+        layout.addWidget(close_btn)
+        
+        dialog.setLayout(layout)
+        dialog.exec()
+    
+    def show_alerts(self, inventory_type: str):
+        """نمایش هشدارهای موجودی"""
+        query = """
+            SELECT * FROM inventory 
+            WHERE inventory_type = ? AND quantity <= min_stock_alert
+            ORDER BY (quantity / NULLIF(min_stock_alert, 0))
+        """
+        items = self.db.execute_query(query, (inventory_type,))
+        
+        if not items:
+            QMessageBox.information(self, "اطلاع", "هشداری وجود ندارد! همه کالاها موجودی کافی دارند.")
+            return
+        
+        message = f"⚠️ هشدار: {len(items)} کالا کم‌موجود است:\n\n"
+        for item in items[:10]:  # نمایش 10 مورد اول
+            message += f"• {item['name']} - موجودی: {item['quantity']:.1f} (حداقل: {item['min_stock_alert']:.1f})\n"
+        
+        if len(items) > 10:
+            message += f"\n... و {len(items) - 10} مورد دیگر"
+        
+        QMessageBox.warning(self, "هشدار موجودی", message)
 
 
 class InventoryDialog(QDialog):

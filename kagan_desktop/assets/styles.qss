@@ -1,52 +1,105 @@
-/* استایل‌های Qt برای Kagan Desktop ERP */
+/* استایل‌های Qt برای Kagan Desktop ERP - Glass Morphism */
 
 /* رنگ‌های اصلی */
-/* Primary: #2C3E50 (سرمهای تیره) */
-/* Secondary: #3498DB (آبی) */
-/* Accent: #E74C3C (قرمز) */
-/* Success: #27AE60 (سبز) */
-/* Background: #ECF0F1 (خاکستری روشن) */
+/* Primary: #4facfe (آبی روشن) */
+/* Secondary: #667eea (بنفش) */
+/* Success: #00d2ff (سبز آبی) */
+/* Warning: #feca57 (زرد) */
+/* Danger: #ee5a6f (قرمز) */
 
 QMainWindow {
-    background-color: #ECF0F1;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #f5f7fa, stop:1 #c3cfe2);
 }
 
-/* دکمه‌ها */
+/* دکمه‌های اصلی */
 QPushButton {
-    background-color: #3498DB;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #4facfe, stop:1 #00f2fe);
     color: white;
     border: none;
-    border-radius: 5px;
-    padding: 8px 16px;
-    font-size: 12px;
-    min-height: 30px;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    min-height: 35px;
 }
 
 QPushButton:hover {
-    background-color: #2980B9;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #43a3f5, stop:1 #00dae5);
 }
 
 QPushButton:pressed {
-    background-color: #21618C;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #3899ec, stop:1 #00c8dc);
 }
 
 QPushButton:disabled {
-    background-color: #95A5A6;
-    color: #BDC3C7;
+    background-color: #bdc3c7;
+    color: #95a5a6;
 }
 
-/* ورودی‌ها */
+/* دکمه اصلی */
+QPushButton#primaryButton {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #667eea, stop:1 #764ba2);
+    font-weight: 600;
+}
+
+QPushButton#primaryButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #5a6fd8, stop:1 #6a4290);
+}
+
+/* دکمه موفقیت */
+QPushButton#successButton {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #11998e, stop:1 #38ef7d);
+}
+
+QPushButton#successButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #0e867c, stop:1 #30d66b);
+}
+
+/* دکمه اطلاعات */
+QPushButton#infoButton {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #4facfe, stop:1 #00f2fe);
+}
+
+/* دکمه هشدار */
+QPushButton#warningButton {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #f093fb, stop:1 #f5576c);
+}
+
+QPushButton#warningButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #e082ea, stop:1 #e4465a);
+}
+
+/* دکمه خطر */
+QPushButton#dangerButton {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #ee5a6f, stop:1 #f29263);
+}
+
+/* ورودی‌ها با Glass Effect */
 QLineEdit, QTextEdit, QSpinBox, QDoubleSpinBox, QDateEdit, QDateTimeEdit, QComboBox {
-    border: 2px solid #BDC3C7;
-    border-radius: 5px;
-    padding: 6px;
-    background-color: white;
-    selection-background-color: #3498DB;
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    selection-background-color: #4facfe;
 }
 
 QLineEdit:focus, QTextEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus,
 QDateEdit:focus, QDateTimeEdit:focus, QComboBox:focus {
-    border-color: #3498DB;
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid #4facfe;
 }
 
 QLineEdit:disabled, QTextEdit:disabled, QSpinBox:disabled, 
