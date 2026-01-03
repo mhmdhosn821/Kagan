@@ -109,7 +109,6 @@ class LoginWindow(QWidget):
             }
         """)
         self.username_input.setMinimumHeight(50)
-        self.username_input.setVisible(True)
         form_layout.addWidget(self.username_input)
         
         # ----- فاصله -----
@@ -145,7 +144,6 @@ class LoginWindow(QWidget):
             }
         """)
         self.password_input.setMinimumHeight(50)
-        self.password_input.setVisible(True)
         self.password_input.returnPressed.connect(self.login)
         form_layout.addWidget(self.password_input)
         
