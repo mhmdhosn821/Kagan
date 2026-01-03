@@ -3,11 +3,11 @@
 """
 import hashlib
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
-    QPushButton, QMessageBox, QFrame, QSpacerItem, QSizePolicy
+    QWidget, QVBoxLayout, QLabel, QLineEdit,
+    QPushButton, QMessageBox, QFrame
 )
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QFont, QPalette, QColor, QLinearGradient, QBrush, QPainter
+from PyQt6.QtGui import QColor, QLinearGradient, QBrush, QPainter
 from database import Database
 
 
@@ -212,11 +212,13 @@ class LoginWindow(QWidget):
     
     def paintEvent(self, event):
         """رسم پسزمینه گرادیانت"""
+        super().paintEvent(event)
         painter = QPainter(self)
         gradient = QLinearGradient(0, 0, self.width(), self.height())
         gradient.setColorAt(0, QColor("#667eea"))
         gradient.setColorAt(1, QColor("#764ba2"))
         painter.fillRect(self.rect(), QBrush(gradient))
+        painter.end()
     
     def login(self):
         """انجام ورود"""
