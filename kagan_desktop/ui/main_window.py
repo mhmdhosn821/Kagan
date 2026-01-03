@@ -176,6 +176,10 @@ class MainWindow(QMainWindow):
                 ("📅", "نوبت‌دهی", 5),
                 ("🧾", "فاکتور", 6),
                 ("📈", "گزارشات", 7),
+                ("💵", "هزینه‌ها", 9),
+                ("💰", "صندوق", 10),
+                ("👨‍💼", "پرسنل", 11),
+                ("📱", "پیامک", 12),
                 ("⚙️", "تنظیمات", 8),
             ])
         elif role == "barber":
@@ -235,6 +239,10 @@ class MainWindow(QMainWindow):
         from ui.invoices import InvoicesPage
         from ui.reports import ReportsPage
         from ui.settings import SettingsPage
+        from ui.expenses import ExpensesPage
+        from ui.cashbox import CashboxPage
+        from ui.staff import StaffPage
+        from ui.sms_panel import SMSPanelPage
         
         # افزودن صفحات
         self.pages.addWidget(DashboardPage(self.db, self.user))  # 0
@@ -246,6 +254,10 @@ class MainWindow(QMainWindow):
         self.pages.addWidget(InvoicesPage(self.db, self.user))  # 6
         self.pages.addWidget(ReportsPage(self.db, self.user))  # 7
         self.pages.addWidget(SettingsPage(self.db, self.user))  # 8
+        self.pages.addWidget(ExpensesPage(self.db, self.user))  # 9
+        self.pages.addWidget(CashboxPage(self.db, self.user))  # 10
+        self.pages.addWidget(StaffPage(self.db, self.user))  # 11
+        self.pages.addWidget(SMSPanelPage(self.db, self.user))  # 12
         
         # تنظیم صفحه اول
         self.switch_page(0)
@@ -272,7 +284,11 @@ class MainWindow(QMainWindow):
             5: "نوبت‌دهی",
             6: "فاکتورزنی",
             7: "گزارشات",
-            8: "تنظیمات"
+            8: "تنظیمات",
+            9: "مدیریت هزینه‌های جاری",
+            10: "مدیریت صندوق",
+            11: "مدیریت کارکرد پرسنل",
+            12: "پنل مدیریت پیامک"
         }
         self.page_title.setText(page_titles.get(index, ""))
     
